@@ -1,0 +1,28 @@
+services:
+  subscription-app:
+    depends_on:
+      subscription-db:
+        condition: service_healthy
+    build: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    networks:
+      - app-network
+  subscription-db:
+    image: postgres:14.19-alpine3.22
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: effective_mobile
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d effective_mobile"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
